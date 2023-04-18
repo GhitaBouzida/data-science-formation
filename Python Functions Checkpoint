@@ -1,0 +1,42 @@
+# Define basic mathematical functions
+def add(num1, num2):
+    return num1 + num2
+
+def subtract(num1, num2):
+    return num1 - num2
+
+def multiply(num1, num2):
+    return num1 * num2
+
+def divide(num1, num2):
+    if num2 == 0:
+        return "Error: Cannot divide by zero"
+    return num1 / num2
+
+# functions to operation symbols in a dictionary
+operations =  { '+': add, '-': subtract, '*': multiply, '/': divide }
+
+# calculator function
+def calculator():
+    num1 = float(input("Enter the first number: "))
+
+    # Print available operations
+    for symbol in operations:
+        print(symbol)
+
+    should_continue = True
+    while should_continue:
+        operation_symbol = input("Select an operation symbol: ")
+        num2 = float(input("Enter the second number: "))
+        calculation_function = operations[operation_symbol]
+        answer = calculation_function(num1, num2)
+        print(f"{num1} {operation_symbol} {num2} = {answer}")
+        choice = input(f"Type 'y' to continue calculating with {answer}, or 'n' to start a new calculation: ")
+        if choice == 'y':
+            num1 = answer
+        else:
+            should_continue = False
+            calculator()
+
+# Call calculator function to start a new calculation
+calculator()
