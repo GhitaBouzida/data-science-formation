@@ -1,0 +1,45 @@
+import numpy as np
+
+grades = np.array([85, 90, 88, 92, 95, 80, 75, 98, 89, 83])
+
+mean = np.mean(grades)
+median = np.median(grades)
+std_dev = np.std(grades)
+max_grade = np.max(grades)
+min_grade = np.min(grades)
+grades = np.array([85, 90, 88, 92, 95, 80, 75, 98, 89, 83])
+sorted_grades = np.sort(grades)
+highest_grade_index = np.argmax(grades)
+num_above_90 = np.sum(grades > 90)
+percentage_above_90 = np.mean(grades > 90) * 100
+percentage_below_75 = np.mean(grades < 75) * 100
+high_performers = grades[grades > 90]
+passing_grades = grades[grades > 75]
+
+
+print("Mean:", mean)
+print("Median:", median)
+print("Standard deviation:", std_dev)
+print("Maximum grade:", max_grade)
+print("Minimum grade:", min_grade)
+print("Sorted grades:", sorted_grades)
+print("Index of highest grade:", highest_grade_index)
+print("Number of students above 90:", num_above_90)
+print("Percentage of students above 90:", percentage_above_90)
+print("Percentage of students below 75:", percentage_below_75)
+print("High performers:", high_performers)
+print("Passing grades:", passing_grades)
+
+#result
+Mean: 87.5
+Median: 88.5
+Standard deviation: 6.591661399070799
+Maximum grade: 98
+Minimum grade: 75
+Sorted grades: [75 80 83 85 88 89 90 92 95 98]
+Index of highest grade: 7
+Number of students above 90: 3
+Percentage of students above 90: 30.0
+Percentage of students below 75: 0.0
+High performers: [92 95 98]
+Passing grades: [85 90 88 92 95 80 98 89 83]
