@@ -1,0 +1,63 @@
+import math
+class Calculator:
+    def __init__(self):
+        self.operations = {
+            '+': self.add,
+            '-': self.subtract,
+            '*': self.multiply,
+            '/': self.divide}
+    def add_operation(self, operation, function):
+        self.operations[operation] = function
+    def calculate(self, num1, operation, num2):
+        if operation in self.operations:
+            if isinstance(num1, (int, float)) and isinstance(num2, (int, float)):
+                return self.operations[operation](num1, num2)
+            else:
+                print("Error: Input values must be numbers.")
+        else:
+            print("Error: Invalid operation symbol.")
+    def add(self, num1, num2):
+        return num1 + num2
+    def subtract(self, num1, num2):
+        return num1 - num2
+    def multiply(self, num1, num2):
+        return num1 * num2
+    def divide(self, num1, num2):
+        if num2 != 0:
+            return num1 / num2
+        else:
+            print("Error: Division by zero.")
+            
+# Advanced mathematical operations
+def exponentiation(num1, num2):
+    return num1 ** num2
+def square_root(num):
+    return math.sqrt(num)
+def logarithm(num):
+    return math.log(num)
+    
+# Create an instance of the Calculator class
+calculator = Calculator()
+
+# Add advanced operations to the calculator's dictionary
+calculator.add_operation('^', exponentiation)
+calculator.add_operation('sqrt', square_root)
+calculator.add_operation('log', logarithm)
+
+# Main program
+while True:
+    print("Enter two numbers and an operation symbol, or 'q' to quit:")
+    num1 = input("Number 1: ")
+    if num1 == 'q': break
+    operation = input("Operation (+, -, *, /, ^, sqrt, log): ")
+    if operation == 'q': break
+    num2 = input("Number 2: ")
+    if num2 == 'q': break
+    try:
+        num1 = float(num1)
+        num2 = float(num2)
+        result = calculator.calculate(num1, operation, num2)
+        print("Result:", result)
+    except ValueError:
+        print("Error: Invalid input. Please enter numeric values.")
+        
