@@ -1,0 +1,20 @@
+import csv
+liste = []
+with open("Lending-Company-Saving.csv", 'r') as file:
+    csvreader = csv.reader(file, delimiter=',')
+    for row in list(csvreader)[1:]:
+        if row[-1]=="":
+            liste.append(0.0)
+        else:
+            liste.append(float(row[-1]))
+a = np.array(liste)
+a.sum(),a.mean(),a.std(),a.median()
+
+total_sum = a.sum()
+mean_value = a.mean() #6497.089596723757
+std_deviation = np.std(a)
+median_value = np.median(a)
+
+print(total_sum, mean_value, std_deviation, median_value)
+
+#result: 19445375.0 18643.69606903164 6497.089596723757 16600.0
