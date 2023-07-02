@@ -1,0 +1,12 @@
+import pandas as pd
+df = pd.read_csv("titanic-passengers.csv")
+pd.set_option('display.max_columns', None)  # Set to None to display all columns
+pd.set_option('display.max_rows', None)  # Set to None to display all rows
+df = pd.read_csv("titanic-passengers.csv", sep=";")
+missing_values = df['Survived'].value_counts(dropna=False)
+print(missing_values)
+dataset = pd.read_csv('titanic-passengers.csv', delimiter=';')
+dataset['Title'] = dataset['Name'].str.extract(' ([A-Za-z]+)\.', expand=False)
+female_survived = dataset[(dataset['Sex'] == 'female') & (dataset['Survived'] == 'Yes')]
+print(female_survived)
+df
