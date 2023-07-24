@@ -1,0 +1,136 @@
+import pandas as pd
+from sklearn.model_selection import train_test_split, cross_val_score, GridSearchCV
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import confusion_matrix, accuracy_score
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.preprocessing import LabelEncoder
+import warnings
+warnings.filterwarnings("ignore", category=FutureWarning)
+
+# Load the dataset of kidney disease
+data = pd.read_csv('kidney_disease.csv')
+# Print the column names to identify the target variable name
+print(data.columns)
+
+# Preprocess the data
+data.rename(columns={'bp': 'blood_pressure', 'sg': 'specific gravity', 'al': 'albumin', 'su': 'sugar',
+                     'rbc': 'red blood cells', 'pc': 'pus cell', 'pcc': 'pus cell clumps', 'ba': 'bacteria',
+                     'bgr': 'blood glucose random', 'bu': 'blood urea', 'sc': 'serum creatinine', 'sod': 'sodium',
+                     'pot': 'potassium', 'hemo': 'hemoglobin', 'pcv': 'packed cell volume', 'wc': 'white blood cell count',
+                     'rc': 'red blood cell count', 'htn': 'hypertension', 'dm': 'diabetes mellitus',
+                     'cad': 'coronary artery disease', 'appet': 'appetite', 'pe': 'pedal edema',
+                     'ane': 'anemia', 'classification': 'class'}, inplace=True)
+
+# Drop rows with missing values
+data.dropna(inplace=True)
+
+# Encode categorical variables
+label_encoder = LabelEncoder()
+for column in data.columns:
+    if data[column].dtype == 'object':
+        data[column] = label_encoder.fit_transform(data[column])
+
+# Part 1: Supervised Learning
+
+# Prepare the data
+X = data.drop(columns=['class'])
+y = data['class']
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Apply logistic regression and print the confusion matrix
+logistic_model = LogisticRegression()
+logistic_model.fit(X_train, y_train)
+
+y_pred = logistic_model.predict(X_test)
+conf_matrix = confusion_matrix(y_test, y_pred)
+print("Confusion Matrix:")
+print(conf_matrix)
+
+# Apply KNN and choose the optimal number of neighbors
+best_accuracy = 0
+best_k = 0
+for k in range(1, 11):
+    knn_model = KNeighborsClassifier(n_neighbors=k)
+    accuracy = cross_val_score(knn_model, X, y, cv=5).mean()
+    print(f"K = {k}, Accuracy = {accuracy:.2f}")
+    if accuracy > best_accuracy:
+        best_accuracy = accuracy
+        best_k = k
+
+print(f"The optimal number of neighbors is {best_k} with an accuracy of {best_accuracy:.2f}.")
+
+# Apply decision tree with hyperparameter tuning, plot it, and calculate the accuracy
+decision_tree_model = DecisionTreeClassifier(random_state=42)
+decision_tree_params = {
+    'criterion': ['gini', 'entropy'],
+    'max_depth': [None, 5, 10, 15],
+    'min_samples_split': [2, 5, 10]
+}
+grid_search_dt = GridSearchCV(decision_tree_model, decision_tree_params, cv=5)
+grid_search_dt.fit(X_train, y_train)
+
+best_dt_model = grid_search_dt.best_estimator_
+y_pred = best_dt_model.predict(X_test)
+accuracy = accuracy_score(y_test, y_pred)
+print(f"Decision Tree Accuracy: {accuracy:.2f}")
+
+# Apply random forest with hyperparameter tuning, calculate the new accuracy, and compare it with the previous result
+random_forest_model = RandomForestClassifier(random_state=42)
+random_forest_params = {
+    'n_estimators': [50, 100, 150],
+    'max_depth': [5, 10, 15],
+    'min_samples_split': [2, 5, 10]
+}
+grid_search_rf = GridSearchCV(random_forest_model, random_forest_params, cv=5)
+grid_search_rf.fit(X_train, y_train)
+
+best_rf_model = grid_search_rf.best_estimator_
+y_pred = best_rf_model.predict(X_test)
+accuracy = accuracy_score(y_test, y_pred)
+print(f"Random Forest Accuracy: {accuracy:.2f}")
+# Part 2: Unsupervised Learning
+
+# Drop the target variable 'classification' for unsupervised learning
+X_unsupervised = data.drop(columns=['class'])
+
+# Apply hierarchical clustering to identify the inherent groupings within your data and plot the clusters.
+hierarchical_model = AgglomerativeClustering(n_clusters=2)
+clusters = hierarchical_model.fit_predict(X_unsupervised)
+
+sns.scatterplot(x=X_unsupervised['hemoglobin'], y=X_unsupervised['blood glucose random'], hue=clusters, palette='Set1')
+plt.xlabel('Hemoglobin')
+plt.ylabel('Blood Glucose Random')
+plt.title('Hierarchical Clustering')
+plt.show()
+
+# Plot the dendrogram
+plt.figure(figsize=(10, 7))
+plt.title('Dendrogram')
+dend = shc.dendrogram(shc.linkage(X_unsupervised, method='ward'))
+plt.show()
+
+# Use k-means clustering and select the optimal k
+inertia_values = []
+for k in range(1, 11):
+    kmeans_model = KMeans(n_clusters=k, random_state=42)
+    kmeans_model.fit(X_unsupervised)
+    inertia_values.append(kmeans_model.inertia_)
+
+plt.plot(range(1, 11), inertia_values, marker='o')
+plt.xlabel('Number of Clusters (k)')
+plt.ylabel('Inertia')
+plt.title('Elbow Curve for Optimal k')
+plt.show()
+
+# Plot the clusters with the chosen k (optimal k)
+optimal_k = 2  # Chosen based on the elbow curve
+kmeans_model = KMeans(n_clusters=optimal_k, random_state=42)
+clusters = kmeans_model.fit_predict(X_unsupervised)
+
+sns.scatterplot(x=X_unsupervised['hemoglobin'], y=X_unsupervised['blood glucose random'], hue=clusters, palette='Set1')
+plt.xlabel('Hemoglobin')
+plt.ylabel('Blood Glucose Random')
+plt.title(f'K-Means Clustering (k={optimal_k})')
+plt.show()
