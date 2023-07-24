@@ -1,0 +1,75 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.cluster import AgglomerativeClustering, KMeans
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import silhouette_score
+
+# Load the dataset
+data = pd.read_csv('credit_card_dataset.csv')
+
+# Drop the CUST_ID column as it is not needed for clustering
+data.drop(columns=['CUST_ID'], inplace=True)
+
+# Handle Missing Values (Impute with Mean)
+data.fillna(data.mean(), inplace=True)
+
+# Handle Infinite Values (Replace with Maximum Finite Value)
+data.replace([np.inf, -np.inf], data.max().max(), inplace=True)
+
+# Standardize the data
+scaler = StandardScaler()
+data_scaled = scaler.fit_transform(data)
+
+# K-means Clustering and selecting the best k value
+k_values = range(2, 11)
+silhouette_scores = []
+
+for k in k_values:
+    kmeans = KMeans(n_clusters=k, random_state=42)
+    kmeans.fit(data_scaled)
+    cluster_labels = kmeans.labels_
+    silhouette_avg = silhouette_score(data_scaled, cluster_labels)
+    silhouette_scores.append(silhouette_avg)
+
+# Select the best k value based on the highest silhouette score
+best_k = k_values[np.argmax(silhouette_scores)]
+
+# K-means Clustering with the best k value
+kmeans = KMeans(n_clusters=best_k, random_state=42)
+data['KMeans_Cluster'] = kmeans.fit_predict(data_scaled)
+
+# Plot K-means Clustering results
+plt.scatter(data['BALANCE'], data['PURCHASES'], c=data['KMeans_Cluster'], cmap='rainbow')
+plt.title('K-means Clustering (k={})'.format(best_k))
+plt.xlabel('BALANCE')
+plt.ylabel('PURCHASES')
+plt.show()
+
+# Hierarchical Clustering with the best k value
+hc = AgglomerativeClustering(n_clusters=best_k, affinity='euclidean', linkage='ward')
+data['HC_Cluster'] = hc.fit_predict(data_scaled)
+
+# Plot Hierarchical Clustering results
+plt.scatter(data['BALANCE'], data['PURCHASES'], c=data['HC_Cluster'], cmap='rainbow')
+plt.title('Hierarchical Clustering (k={})'.format(best_k))
+plt.xlabel('BALANCE')
+plt.ylabel('PURCHASES')
+plt.show()
+
+# Compare the results of Hierarchical Clustering and K-means Clustering
+plt.figure(figsize=(12, 6))
+plt.subplot(1, 2, 1)
+plt.scatter(data['BALANCE'], data['PURCHASES'], c=data['HC_Cluster'], cmap='rainbow')
+plt.title('Hierarchical Clustering (k={})'.format(best_k))
+plt.xlabel('BALANCE')
+plt.ylabel('PURCHASES')
+
+plt.subplot(1, 2, 2)
+plt.scatter(data['BALANCE'], data['PURCHASES'], c=data['KMeans_Cluster'], cmap='rainbow')
+plt.title('K-means Clustering (k={})'.format(best_k))
+plt.xlabel('BALANCE')
+plt.ylabel('PURCHASES')
+
+plt.tight_layout()
+plt.show()
