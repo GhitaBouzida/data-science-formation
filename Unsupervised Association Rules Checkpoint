@@ -1,0 +1,46 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+from mlxtend.preprocessing import TransactionEncoder
+from mlxtend.frequent_patterns import apriori, association_rules
+from collections import Counter
+
+# Given dataset
+dataset = [
+    ['Skirt', 'Sneakers', 'Scarf', 'Pants', 'Hat'],
+    ['Sunglasses', 'Skirt', 'Sneakers', 'Pants', 'Hat'],
+    ['Dress', 'Sandals', 'Scarf', 'Pants', 'Heels'],
+    ['Dress', 'Necklace', 'Earrings', 'Scarf', 'Hat', 'Heels', 'Hat'],
+    ['Earrings', 'Skirt', 'Skirt', 'Scarf', 'Shirt', 'Pants']
+]
+
+# Step 1: Data Preprocessing
+transactions = dataset
+
+# Step 2: Visualization
+all_items = [item for transaction in transactions for item in transaction]
+item_counts = Counter(all_items)
+
+plt.figure(figsize=(10, 5))
+plt.bar(item_counts.keys(), item_counts.values())
+plt.xlabel('Items')
+plt.ylabel('Frequency')
+plt.title('Item Frequency in the Dataset')
+plt.xticks(rotation=45)
+plt.show()
+
+# Step 3: Association Rules Mining
+te = TransactionEncoder()
+te_array = te.fit(transactions).transform(transactions)
+df = pd.DataFrame(te_array, columns=te.columns_)
+
+# Apply Apriori to find frequent itemsets
+frequent_itemsets = apriori(df, min_support=0.2, use_colnames=True)
+
+# Generate association rules
+rules = association_rules(frequent_itemsets, metric='lift', min_threshold=1.0)
+
+# Sort the rules by confidence in descending order
+rules = rules.sort_values(by='confidence', ascending=False)
+
+# Print the top 10 association rules
+print(rules.head(10))
