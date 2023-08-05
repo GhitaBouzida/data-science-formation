@@ -1,0 +1,50 @@
+!pip install requests pandas
+import requests
+import pandas as pd
+
+# Replace 'YOUR_API_KEY' with the API key you obtained from OMDb API website
+API_KEY = 'e3c01a53'
+OMDB_URL = 'http://www.omdbapi.com/apikey.aspx?VERIFYKEY=b06ad539-575a-4e54-9a08-fcd5ecda77a2'
+import requests
+import pandas as pd
+
+# Replace 'YOUR_API_KEY' with the API key you obtained from OMDb API website
+API_KEY = 'YOUR_API_KEY'
+OMDB_URL = 'http://www.omdbapi.com/'
+
+def get_top_10_movies(api_key):
+    params = {
+        'apikey': api_key,
+        'type': 'movie',     # Filter by type: movie
+        's': 'top',          # Search for top rated movies
+        'r': 'json',         # Response format: JSON
+        'plot': 'full',      # Get full plot information
+        'page': 1            # Get the first page of results
+    }
+
+    response = requests.get(OMDB_URL, params=params)
+    data = response.json()
+
+    if 'Search' not in data:
+        print('Error: Could not retrieve movie data.')
+        return None
+
+    return data['Search']
+
+def extract_movie_info(movie):
+    return {
+        'Title': movie['Title'],
+        'Year': movie['Year'],
+        'Director': movie['Director'],
+        'Rating': movie['imdbRating']
+    }
+
+if __name__ == '__main__':
+    top_movies = get_top_10_movies(API_KEY)
+
+    if top_movies:
+        movie_info_list = [extract_movie_info(movie) for movie in top_movies]
+        df = pd.DataFrame(movie_info_list)
+        print(df)
+    else:
+        print('No movie data available.')
